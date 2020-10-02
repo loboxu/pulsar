@@ -16,33 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.pulsar.zookeeper;
 
-import java.util.concurrent.CompletableFuture;
+package org.apache.pulsar.common.intercept;
 
-import org.apache.zookeeper.ZooKeeper;
+import lombok.Getter;
 
-public interface ZooKeeperClientFactory {
-    enum SessionType {
-        /**
-         * Create a normal ZK session that requires a valid quorum
-         */
-        ReadWrite,
+/**
+ * Base exception for the broker interceptor.
+ */
+@Getter
+public class InterceptException extends Exception {
 
-        /**
-         * Create a ZK session that allow the client to stay connected (in read only mode) to a ZK server that has lost
-         * the quorum
-         */
-        AllowReadOnly,
+    private final int errorCode;
+
+    public InterceptException(int errorCode, String message) {
+        super(message);
+        this.errorCode = errorCode;
     }
-
-    /**
-     * Return a future yielding a connected ZooKeeper client
-     *
-     * @param serverList
-     * @param sessionType
-     * @param zkSessionTimeoutMillis
-     * @return
-     */
-    CompletableFuture<ZooKeeper> create(String serverList, SessionType sessionType, int zkSessionTimeoutMillis);
 }
