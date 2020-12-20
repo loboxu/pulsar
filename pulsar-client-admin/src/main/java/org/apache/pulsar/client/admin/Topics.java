@@ -795,6 +795,26 @@ public interface Topics {
      *
      * @param topic
      *            topic name
+     * @param metadata
+     *            flag to include ledger metadata
+     * @return the topic statistics
+     *
+     * @throws NotAuthorizedException
+     *             Don't have admin permission
+     * @throws NotFoundException
+     *             Topic does not exist
+     * @throws PulsarAdminException
+     *             Unexpected error
+     */
+    PersistentTopicInternalStats getInternalStats(String topic, boolean metadata) throws PulsarAdminException;
+
+    /**
+     * Get the internal stats for the topic.
+     * <p/>
+     * Access the internal state of the topic
+     *
+     * @param topic
+     *            topic name
      * @return the topic statistics
      *
      * @throws NotAuthorizedException
@@ -811,7 +831,17 @@ public interface Topics {
      *
      * @param topic
      *            topic Name
+     * @param metadata
+     *            flag to include ledger metadata
+     * @return a future that can be used to track when the internal topic statistics are returned
+     */
+    CompletableFuture<PersistentTopicInternalStats> getInternalStatsAsync(String topic, boolean metadata);
+
+    /**
+     * Get the internal stats for the topic asynchronously.
      *
+     * @param topic
+     *            topic Name
      * @return a future that can be used to track when the internal topic statistics are returned
      */
     CompletableFuture<PersistentTopicInternalStats> getInternalStatsAsync(String topic);
@@ -1274,6 +1304,18 @@ public interface Topics {
 
     /**
      * Reset cursor position on a topic subscription.
+     * <p/>
+     * and start consume messages from the next position of the reset position.
+     * @param topic
+     * @param subName
+     * @param messageId
+     * @param isExcluded
+     * @throws PulsarAdminException
+     */
+    void resetCursor(String topic, String subName, MessageId messageId, boolean isExcluded) throws PulsarAdminException;
+
+    /**
+     * Reset cursor position on a topic subscription.
      *
      * @param topic
      *            topic name
@@ -1283,6 +1325,18 @@ public interface Topics {
      *            reset subscription to position closest to time in ms since epoch
      */
     CompletableFuture<Void> resetCursorAsync(String topic, String subName, long timestamp);
+
+    /**
+     * Reset cursor position on a topic subscription.
+     * <p/>
+     * and start consume messages from the next position of the reset position.
+     * @param topic
+     * @param subName
+     * @param messageId
+     * @param isExcluded
+     * @return
+     */
+    CompletableFuture<Void> resetCursorAsync(String topic, String subName, MessageId messageId, boolean isExcluded);
 
     /**
      * Reset cursor position on a topic subscription.
@@ -2403,6 +2457,110 @@ public interface Topics {
     CompletableFuture<Void> removeMaxProducersAsync(String topic);
 
     /**
+     * Get the max number of subscriptions for specified topic.
+     *
+     * @param topic Topic name
+     * @return Configuration of bookkeeper persistence policies
+     * @throws PulsarAdminException Unexpected error
+     */
+    Integer getMaxSubscriptionsPerTopic(String topic) throws PulsarAdminException;
+
+    /**
+     * Get the max number of subscriptions for specified topic asynchronously.
+     *
+     * @param topic Topic name
+     * @return Configuration of bookkeeper persistence policies
+     * @throws PulsarAdminException Unexpected error
+     */
+    CompletableFuture<Integer> getMaxSubscriptionsPerTopicAsync(String topic);
+
+
+    /**
+     * Set the max number of subscriptions for specified topic.
+     *
+     * @param topic Topic name
+     * @param maxSubscriptionsPerTopic Max number of subscriptions
+     * @throws PulsarAdminException Unexpected error
+     */
+    void setMaxSubscriptionsPerTopic(String topic, int maxSubscriptionsPerTopic) throws PulsarAdminException;
+
+    /**
+     * Set the max number of subscriptions for specified topic asynchronously.
+     *
+     * @param topic Topic name
+     * @param maxSubscriptionsPerTopic Max number of subscriptions
+     * @throws PulsarAdminException Unexpected error
+     */
+    CompletableFuture<Void> setMaxSubscriptionsPerTopicAsync(String topic, int maxSubscriptionsPerTopic);
+
+    /**
+     * Remove the max number of subscriptions for specified topic.
+     *
+     * @param topic Topic name
+     * @throws PulsarAdminException Unexpected error
+     */
+    void removeMaxSubscriptionsPerTopic(String topic) throws PulsarAdminException;
+
+    /**
+     * Remove the max number of subscriptions for specified topic asynchronously.
+     *
+     * @param topic Topic name
+     */
+    CompletableFuture<Void> removeMaxSubscriptionsPerTopicAsync(String topic);
+
+    /**
+     * Get the max message size for specified topic.
+     *
+     * @param topic Topic name
+     * @return Configuration of bookkeeper persistence policies
+     * @throws PulsarAdminException Unexpected error
+     */
+    Integer getMaxMessageSize(String topic) throws PulsarAdminException;
+
+    /**
+     * Get the max message size for specified topic asynchronously.
+     *
+     * @param topic Topic name
+     * @return Configuration of bookkeeper persistence policies
+     * @throws PulsarAdminException Unexpected error
+     */
+    CompletableFuture<Integer> getMaxMessageSizeAsync(String topic);
+
+
+    /**
+     * Set the max message size for specified topic.
+     *
+     * @param topic Topic name
+     * @param maxMessageSize Max message size of producer
+     * @throws PulsarAdminException Unexpected error
+     */
+    void setMaxMessageSize(String topic, int maxMessageSize) throws PulsarAdminException;
+
+    /**
+     * Set the max message size for specified topic asynchronously.0 disables.
+     *
+     * @param topic Topic name
+     * @param maxMessageSize Max message size of topic
+     * @throws PulsarAdminException Unexpected error
+     */
+    CompletableFuture<Void> setMaxMessageSizeAsync(String topic, int maxMessageSize);
+
+    /**
+     * Remove the max message size for specified topic.
+     *
+     * @param topic Topic name
+     * @throws PulsarAdminException Unexpected error
+     */
+    void removeMaxMessageSize(String topic) throws PulsarAdminException;
+
+    /**
+     * Remove the max message size for specified topic asynchronously.
+     *
+     * @param topic Topic name
+     */
+    CompletableFuture<Void> removeMaxMessageSizeAsync(String topic);
+
+    /**
      * Get the max number of consumer for specified topic.
      *
      * @param topic Topic name
@@ -2453,6 +2611,51 @@ public interface Topics {
      * @param topic Topic name
      */
     CompletableFuture<Void> removeMaxConsumersAsync(String topic);
+
+    /**
+     * Get the deduplication snapshot interval for specified topic.
+     * @param topic
+     * @return
+     * @throws PulsarAdminException
+     */
+    Integer getDeduplicationSnapshotInterval(String topic) throws PulsarAdminException;
+
+    /**
+     * Get the deduplication snapshot interval for specified topic asynchronously.
+     * @param topic
+     * @return
+     */
+    CompletableFuture<Integer> getDeduplicationSnapshotIntervalAsync(String topic);
+
+    /**
+     * Set the deduplication snapshot interval for specified topic.
+     * @param topic
+     * @param interval
+     * @throws PulsarAdminException
+     */
+    void setDeduplicationSnapshotInterval(String topic, int interval) throws PulsarAdminException;
+
+    /**
+     * Set the deduplication snapshot interval for specified topic asynchronously.
+     * @param topic
+     * @param interval
+     * @return
+     */
+    CompletableFuture<Void> setDeduplicationSnapshotIntervalAsync(String topic, int interval);
+
+    /**
+     * Remove the deduplication snapshot interval for specified topic.
+     * @param topic
+     * @throws PulsarAdminException
+     */
+    void removeDeduplicationSnapshotInterval(String topic) throws PulsarAdminException;
+
+    /**
+     * Remove the deduplication snapshot interval for specified topic asynchronously.
+     * @param topic
+     * @return
+     */
+    CompletableFuture<Void> removeDeduplicationSnapshotIntervalAsync(String topic);
 
     /**
      * Set topic-subscribe-rate (topic will limit by subscribeRate).
@@ -2515,4 +2718,24 @@ public interface Topics {
      *              unexpected error
      */
     CompletableFuture<Void> removeSubscribeRateAsync(String topic) throws PulsarAdminException;
+
+    /**
+     * Examine a specific message on a topic by position relative to the earliest or the latest message.
+     *
+     * @param topic Topic name
+     * @param initialPosition Relative start position to examine message. It can be 'latest' or 'earliest'
+     * @param messagePosition The position of messages (default 1)
+     */
+    Message<byte[]> examineMessage(String topic, String initialPosition, long messagePosition)
+            throws PulsarAdminException;
+
+    /**
+     * Examine a specific message on a topic by position relative to the earliest or the latest message.
+     *
+     * @param topic Topic name
+     * @param initialPosition Relative start position to examine message. It can be 'latest' or 'earliest'
+     * @param messagePosition The position of messages (default 1)
+     */
+    CompletableFuture<Message<byte[]>> examineMessageAsync(String topic, String initialPosition, long messagePosition)
+            throws PulsarAdminException;
 }
